@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaTech – Checkout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050810; --surface: #0d1220; --surface2: #131928; --border: #1e2d4a;
+      --accent: #00d4ff; --accent2: #7b2fff; --text: #e8edf5; --text-muted: #6b7a99;
+      --glow: 0 0 20px rgba(0,212,255,0.35), 0 0 60px rgba(0,212,255,0.12);
+      --error: #ff4466;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; min-height: 100vh; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 70px; background: rgba(5,8,16,0.95);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; }
+    .logo span { color: var(--accent); }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s; }
+    .back-link:hover { color: var(--accent); }
+    main { max-width: 700px; margin: 60px auto; padding: 0 24px 80px; }
+    h1 { font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 900; margin-bottom: 8px;
+      background: linear-gradient(135deg,#fff 30%, var(--accent) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .subtitle { color: var(--text-muted); margin-bottom: 40px; font-size: 1rem; }
+    .form-section { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px; }
+    .section-title { font-family: 'Orbitron', monospace; font-size: 0.85rem; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
+    .form-group input {
+      background: var(--surface2); border: 1.5px solid var(--border); color: var(--text);
+      padding: 12px 16px; border-radius: 10px; font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 14px rgba(0,212,255,0.2); }
+    .form-group input.error { border-color: var(--error); box-shadow: 0 0 10px rgba(255,68,102,0.2); }
+    .err-msg { color: var(--error); font-size: 0.82rem; font-weight: 600; display: none; }
+    .err-msg.show { display: block; }
+    .order-summary { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .order-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+    .order-item:last-child { border: none; }
+    .order-total { display: flex; justify-content: space-between; padding-top: 16px; font-size: 1.2rem; font-weight: 700; }
+    .order-total span { color: var(--accent); font-family: 'Orbitron', monospace; }
+    .empty-cart { color: var(--text-muted); font-size: 0.95rem; }
+    .pay-btn {
+      width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border: none; color: #fff; font-family: 'Rajdhani', sans-serif; font-size: 1.05rem;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border-radius: 12px;
+      cursor: pointer; transition: opacity 0.2s, box-shadow 0.2s;
+    }
+    .pay-btn:hover { opacity: 0.9; box-shadow: var(--glow); }
+    .success-msg {
+      display: none; background: rgba(0,212,255,0.08); border: 1px solid var(--accent);
+      border-radius: 12px; padding: 24px; text-align: center; margin-top: 24px;
+    }
+    .success-msg h3 { font-family: 'Orbitron', monospace; color: var(--accent); margin-bottom: 8px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } header { padding: 0 20px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">NOVA<span>TECH</span></div>
+    <a href="index.html" class="back-link">← Back to Store</a>
+  </header>
+  <main>
+    <h1>Checkout</h1>
+    <p class="subtitle">Complete your order securely.</p>
+    <div class="form-section order-summary" id="orderSummary">
+      <div class="section-title">Order Summary</div>
+      <div id="orderItems"></div>
+    </div>
+    <div class="form-section">
+      <div class="section-title">Shipping Information</div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="fullName" placeholder="Juan dela Cruz"/>
+        <span class="err-msg" id="nameErr">Please enter your full name.</span>
+      </div>
+      <div class="form-group">
+        <label>Delivery Address</label>
+        <input type="text" id="address" placeholder="123 Mabini St, Quezon City"/>
+        <span class="err-msg" id="addressErr">Please enter your delivery address.</span>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="section-title">Payment Details</div>
+      <div class="form-group">
+        <label>Card Number</label>
+        <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"/>
+        <span class="err-msg" id="cardErr">Card number must be exactly 16 digits.</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Expiry Date</label>
+          <input type="text" id="expiry" placeholder="MM/YY" maxlength="5"/>
+          <span class="err-msg" id="expiryErr">Enter expiry in MM/YY format.</span>
+        </div>
+        <div class="form-group">
+          <label>CVV</label>
+          <input type="text" id="cvv" placeholder="123" maxlength="3"/>
+          <span class="err-msg" id="cvvErr">CVV must be exactly 3 digits.</span>
+        </div>
+      </div>
+    </div>
+    <button class="pay-btn" id="payBtn">Confirm & Pay</button>
+    <div class="success-msg" id="successMsg">
+      <h3>✓ Order Placed!</h3>
+      <p>Thank you for your purchase. Your order is being processed.</p>
+    </div>
+  </main>
+  <script src="checkout.js"></script>
+</body>
+</html>
